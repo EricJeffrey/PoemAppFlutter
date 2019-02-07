@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:http/http.dart';
 import 'dart:convert';
 
@@ -37,6 +39,8 @@ class Poem {
 Future<Poem> fetchData() async {
   final Response response = await get("http://192.168.137.1:8000");
   if (response.statusCode == 200) {
+    Uint8List b = response.bodyBytes;
+    mylog(b, desc: "bytes");
     Map<String, dynamic> tmp =
         jsonDecode(Utf8Decoder().convert(response.bodyBytes));
     return Poem.fromJson(tmp);
