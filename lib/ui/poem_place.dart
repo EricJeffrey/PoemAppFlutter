@@ -10,9 +10,11 @@ class DataHolderStateful extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return DataHolderState();
+    return state;
   }
 }
+
+enum DataHolderStateSetType { type_pre, type_random, type_next, type_today }
 
 /// State of [DataHolderStateful]
 class DataHolderState extends State<DataHolderStateful> {
@@ -20,14 +22,14 @@ class DataHolderState extends State<DataHolderStateful> {
   static const int type_random = 0;
   static const int type_next = 1;
 
-  final DateTime fixCmp = DateTime(2019);
+  static final DateTime fixCmp = DateTime(2019);
   NetworkDataHolder dataHolder;
   int currentDay;
 
   @override
   void initState() {
     super.initState();
-    Future<NetworkDataHolder> tmpNetwordData = fetchDataToday();
+    Future<NetworkDataHolder> tmpNetwordData = fetchDataOfType(FetchType.type_today);
     currentDay = DateTime.now().difference(fixCmp).inDays;
     tmpNetwordData.then((NetworkDataHolder data) {
       setState(() => dataHolder = data);
@@ -35,13 +37,14 @@ class DataHolderState extends State<DataHolderStateful> {
   }
 
   /// Set state of this state
-  void setStateByType(NetworkDataHolder data, int type) {
+  void setStateByType(NetworkDataHolder data, DataHolderStateSetType type) {
     setState(() {
-      if (type == type_pre)
+      if (type == DataHolderStateSetType.type_pre)
         currentDay -= 1;
-      else if (type == type_next)
+      else if (type == DataHolderStateSetType.type_next)
         currentDay += 1;
-      else if (type == type_random) currentDay = DateTime.now().difference(fixCmp).inDays;
+      else if (type == DataHolderStateSetType.type_random)
+        currentDay = DateTime.now().difference(fixCmp).inDays;
       dataHolder = data;
     });
   }

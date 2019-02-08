@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:poem_random/data_control/data_fetcher.dart';
+import 'package:poem_random/data_control/data_model.dart';
+import 'package:poem_random/ui/poem_place.dart';
 
 class LeftDrawer extends StatelessWidget {
   final double width;
@@ -52,9 +55,9 @@ class LeftDrawerTile extends StatelessWidget {
 
 class RightDrawer extends StatelessWidget {
   final double width;
-  final Function rand;
+  final DataHolderState state;
 
-  RightDrawer(this.rand, {this.width = 150, Key key}) : super(key: key);
+  RightDrawer(this.state, {this.width = 150, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,17 +67,48 @@ class RightDrawer extends StatelessWidget {
       Icons.share,
       Icons.fast_rewind,
       Icons.fast_forward,
-      Icons.shuffle,
-      Icons.today,
+      Icons.all_inclusive,
+      Icons.access_time,
     ];
-    List<Function> funcs = [
-      () {},
-      () {},
-      () {},
-      () {},
-      rand,
-      () {},
-    ];
+    Function favorFunc = () {
+      /// TODO favorite
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text("已收藏")));
+      Navigator.pop(context);
+    };
+    Function shareFunc = () {
+      /// TODO share
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text("正在开发中")));
+      Navigator.pop(context);
+    };
+    Function preFunc = () {
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_pre);
+      Navigator.pop(context);
+      tmpFuture.then((NetworkDataHolder data) {
+        state.setStateByType(data, DataHolderStateSetType.type_pre);
+      });
+    };
+    Function nextFunc = () {
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_nxt);
+      Navigator.pop(context);
+      tmpFuture.then((NetworkDataHolder data) {
+        state.setStateByType(data, DataHolderStateSetType.type_next);
+      });
+    };
+    Function randFunc = () {
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_rand);
+      Navigator.pop(context);
+      tmpFuture.then((NetworkDataHolder data) {
+        state.setStateByType(data, DataHolderStateSetType.type_next);
+      });
+    };
+    Function todayFunc = () {
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_today);
+      Navigator.pop(context);
+      tmpFuture.then((NetworkDataHolder data) {
+        state.setStateByType(data, DataHolderStateSetType.type_today);
+      });
+    };
+    List<Function> funcs = [favorFunc, shareFunc, preFunc, nextFunc, randFunc, todayFunc];
     List<RightDrawerTile> tiles = [];
     for (var i = 0; i < 6; i++) {
       tiles.add(RightDrawerTile(
