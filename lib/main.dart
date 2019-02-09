@@ -8,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DataHolderState state = DataHolderState();
-    return MaterialApp(
+    MaterialApp app = MaterialApp(
       theme: ThemeData(primaryColor: Colors.blueAccent),
       home: Scaffold(
         body: DataHolderStateful(state),
@@ -16,5 +16,6 @@ class MyApp extends StatelessWidget {
         endDrawer: RightDrawer(state, width: 100),
       ),
     );
+    return app;
   }
 }

@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:poem_random/data_control/data_model.dart';
@@ -10,9 +10,9 @@ const String url = "http://192.168.137.1:8000";
 /// desc: <<<xxxx>>>
 void mylog(Object content, {String desc}) {
   const lf = "\n";
-  print(lf);
-  if (desc != null) print("$desc: ");
-  print("<<<<<<<<<<<<<<<<${content.toString()}>>>>>>>>>>>>>>>>$lf");
+  debugPrint(lf);
+  if (desc != null) debugPrint("$desc: ");
+  debugPrint("<<<<<<<<<<<<<<<<${content.toString()}>>>>>>>>>>>>>>>>$lf");
 }
 
 /// Parse a bytes into utf-8 string, then to json, then to Poem
@@ -25,7 +25,6 @@ enum FetchType { type_today, type_rand, type_pre, type_nxt }
 
 /// Fetch data from server, fetch url is set by fetchType.
 /// Para [day] is needed when [fetchType] is [FetchType.type_nxt] or [FetchType.type_pre]
-/// TODO Store In Database
 Future<NetworkDataHolder> fetchDataOfType(FetchType fetchType, {int day}) async {
   try {
     String fetchUrl;
