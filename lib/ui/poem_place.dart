@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:poem_random/data_control/data_fetcher.dart';
 import 'package:poem_random/data_control/data_model.dart';
+import 'package:poem_random/ui/my_app.dart';
 
 /// Place to show current network status
 class DataHolderStateful extends StatefulWidget {
-  final DataHolderState state;
+  final DataHolderState state = DataHolderState();
 
-  DataHolderStateful(this.state, {Key key}) : super(key: key);
+  DataHolderStateful({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -23,6 +24,7 @@ class DataHolderState extends State<DataHolderStateful> {
   void initState() {
     super.initState();
     Future<NetworkDataHolder> tmpNetwordData = fetchDataOfType(FetchType.type_today);
+    tmpNetwordData.timeout(Duration(seconds: 3), onTimeout: () {});
     tmpNetwordData.then((NetworkDataHolder data) {
       setState(() => dataHolder = data);
     });
@@ -35,10 +37,16 @@ class DataHolderState extends State<DataHolderStateful> {
 
   @override
   Widget build(BuildContext context) {
-    if (dataHolder == null) return Center(child: CircularProgressIndicator());
-    if (dataHolder.errorOccurred) return Center(child: Text(dataHolder.errorInfo.toString()));
-    if (!dataHolder.dataFetched) return Center(child: Text("No data found"));
-    return PoemPlaceStateless(dataHolder.poem);
+    Widget child;
+    if (dataHolder == null)
+      child = Center(child: CircularProgressIndicator());
+    else if (dataHolder.errorOccurred)
+      child = Center(child: Text(dataHolder.errorInfo.toString()));
+    else if (!dataHolder.dataFetched)
+      child = Center(child: Text("No data found"));
+    else
+      child = PoemPlaceStateless(dataHolder.poem);
+    return Container(color: MyAppState.bgcCommon, child: child);
   }
 }
 
@@ -50,9 +58,20 @@ class PoemPlaceStateless extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const TextStyle titleStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
-    const TextStyle authorStyle = TextStyle(fontSize: 16, fontStyle: FontStyle.italic);
-    const TextStyle linesStyle = TextStyle(fontSize: 18);
+    TextStyle titleStyle = TextStyle(
+      fontSize: MyAppState.fsPoemTitle,
+      fontWeight: FontWeight.bold,
+      color: MyAppState.cText,
+    );
+    TextStyle authorStyle = TextStyle(
+      fontSize: MyAppState.fsPoemAuthor,
+      fontStyle: FontStyle.italic,
+      color: MyAppState.cText,
+    );
+    TextStyle linesStyle = TextStyle(
+      fontSize: MyAppState.fsPoemLines,
+      color: MyAppState.cText,
+    );
 
     Widget titleWidget = Text(poem.title, style: titleStyle);
     Widget authorWidget = Text("${poem.author} ${poem.authorDynasty}", style: authorStyle);
@@ -66,7 +85,7 @@ class PoemPlaceStateless extends StatelessWidget {
         child: Container(
           width: 400,
           padding: EdgeInsets.fromLTRB(20, 30, 20, 20),
-          color: Colors.yellow[50],
+          color: MyAppState.bgcPoemPlace,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

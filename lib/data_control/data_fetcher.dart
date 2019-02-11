@@ -9,10 +9,8 @@ const String url = "http://192.168.137.1:8000";
 /// A log tools with style
 /// desc: <<<xxxx>>>
 void mylog(Object content, {String desc}) {
-  const lf = "\n";
-  debugPrint(lf);
   if (desc != null) debugPrint("$desc: ");
-  debugPrint("<<<<<<<<<<<<<<<<${content.toString()}>>>>>>>>>>>>>>>>$lf");
+  debugPrint("<<<<<<<<<<<<<<<<${content.toString()}>>>>>>>>>>>>>>>>\n");
 }
 
 /// Parse a bytes into utf-8 string, then to json, then to Poem
@@ -40,11 +38,10 @@ Future<NetworkDataHolder> fetchDataOfType(FetchType fetchType, {int day}) async 
     }
     final Response response = await get(fetchUrl);
     final int statusCode = response.statusCode;
-    if (statusCode == 200) {
+    if (statusCode == 200)
       return NetworkDataHolder(poem: parseJsonBytesData(response.bodyBytes));
-    } else {
+    else
       return NetworkDataHolder(errorOccurred: true, errorInfo: statusCode);
-    }
   } catch (e) {
     return NetworkDataHolder(errorOccurred: true, errorInfo: e);
   }

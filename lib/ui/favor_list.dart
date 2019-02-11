@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:poem_random/data_control/data_model.dart';
+import 'package:poem_random/ui/my_app.dart';
 import 'package:poem_random/ui/poem_place.dart';
 
 class FavorListPage extends StatefulWidget {
@@ -20,35 +21,44 @@ class FavorListState extends State<FavorListPage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget bodyWidget;
     if (poems == null)
-      return Scaffold(
-        body: Center(child: Text("出错了")),
-      );
-    List<ListTile> favorListTiles = [];
-    for (var item in poems) {
-      favorListTiles.add(ListTile(
-        contentPadding: EdgeInsets.all(3),
-        title: Text(
-          item.title,
-          style: TextStyle(fontSize: 18),
-        ),
-        subtitle: Text(
-          "${item.author} ${item.authorDynasty}",
-          style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-        ),
-        leading: Icon(Icons.cached),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => Scaffold(body: PoemPlaceStateless(item)),
-            ),
-          );
-        },
-      ));
+      bodyWidget = Center(child: Text("出错了"));
+    else {
+      List<ListTile> favorListTiles = [];
+      for (var item in poems) {
+        favorListTiles.add(ListTile(
+          contentPadding: EdgeInsets.all(3),
+          title: Text(
+            item.title,
+            style: TextStyle(fontSize: MyAppState.fsPoemTitle),
+          ),
+          subtitle: Text(
+            "${item.author} ${item.authorDynasty}",
+            style: TextStyle(fontSize: MyAppState.fsPoemAuthor, fontStyle: FontStyle.italic),
+          ),
+          leading: Icon(Icons.cached),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => Scaffold(body: PoemPlaceStateless(item)),
+              ),
+            );
+          },
+        ));
+      }
+      bodyWidget = ListView(children: favorListTiles);
     }
     return Scaffold(
-      body: ListView(children: favorListTiles),
+      appBar: AppBar(
+        title: Text("我的收藏"),
+        toolbarOpacity: 1,
+        backgroundColor: MyAppState.bgcAppBar,
+        elevation: 3,
+        titleSpacing: 0,
+      ),
+      body: bodyWidget,
     );
   }
 }

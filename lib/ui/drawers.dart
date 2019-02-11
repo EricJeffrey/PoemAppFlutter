@@ -1,15 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:poem_random/data_control/data_fetcher.dart';
 import 'package:poem_random/data_control/data_model.dart';
-import 'package:poem_random/data_control/db_manip.dart';
+import 'package:poem_random/data_control/providers.dart';
 import 'package:poem_random/ui/favor_list.dart';
-import 'package:poem_random/ui/poem_place.dart';
+import 'package:poem_random/ui/my_app.dart';
+import 'package:poem_random/ui/setting_btm_sheet.dart';
+
+/// TODO right drawer - stateful
 
 class LeftDrawer extends StatelessWidget {
   final double width;
+  final MyAppState app;
 
-  const LeftDrawer({Key key, this.width}) : super(key: key);
+  const LeftDrawer(this.app, {Key key, this.width}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +21,7 @@ class LeftDrawer extends StatelessWidget {
     Function myFavorTapFunc = () {
       FavorPoemProvider favorProvider = FavorPoemProvider.getInstance();
       favorProvider.open().then((tmp) {
-        favorProvider.getAllFavorPoem().then((List<Poem> poems) {
+        favorProvider.queryAll().then((List<Poem> poems) {
           Navigator.pop(context);
           Navigator.push(
             context,
@@ -31,23 +34,24 @@ class LeftDrawer extends StatelessWidget {
     };
 
     /// TODO setting page
-    Function settingTapFunc = () {};
+    Function settingTapFunc = () {
+      Navigator.pop(context);
+      PersistentBottomSheetController controller = showBottomSheet(
+        context: context,
+        builder: (BuildContext context) => SettingBtmSheet(),
+      );
+    };
 
     /// TODO thumbUp page
     Function thumbUpTapFunc = () {};
     List<Function> funcs = [myFavorTapFunc, settingTapFunc, thumbUpTapFunc];
     List<LeftDrawerTile> tiles = [];
-    for (var i = 0; i < titles.length; i++) {
-      tiles.add(LeftDrawerTile(
-        text: titles[i],
-        iconData: icons[i],
-        onTapFunc: funcs[i],
-      ));
-    }
+    for (var i = 0; i < titles.length; i++)
+      tiles.add(LeftDrawerTile(text: titles[i], iconData: icons[i], onTapFunc: funcs[i]));
     return new Container(
-      child: new Column(children: tiles),
+      child: new Column(children: tiles, crossAxisAlignment: CrossAxisAlignment.center),
       width: width,
-      color: Colors.grey[900],
+      color: MyAppState.bgcNightMode,
       padding: EdgeInsets.fromLTRB(0, 50, 0, 0),
     );
   }
@@ -62,21 +66,12 @@ class LeftDrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: Container(
-        padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-        child: ListTile(
-          title: Text(
-            text,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-          ),
-          leading: Icon(iconData, color: Colors.white),
-          onTap: onTapFunc,
-        ),
-      ),
       color: Colors.transparent,
+      child: ListTile(
+        leading: Icon(iconData, color: Colors.white),
+        title: DrawerText(text: text),
+        onTap: onTapFunc,
+      ),
     );
   }
 }
@@ -84,10 +79,9 @@ class LeftDrawerTile extends StatelessWidget {
 class RightDrawer extends StatelessWidget {
   final double width;
 
-  /// State of [DataHolderStateful] in Home page, used to notify in tap event
-  final DataHolderState state;
+  final MyAppState appState;
 
-  RightDrawer(this.state, {this.width = 150, Key key}) : super(key: key);
+  RightDrawer(this.appState, {this.width = 150, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +97,12 @@ class RightDrawer extends StatelessWidget {
     Function favorFunc = () {
       FavorPoemProvider provider = FavorPoemProvider.getInstance();
       Navigator.pop(context);
-      int diffDay = state.dataHolder.poem.diffDay;
+      Poem currentPoem = appState.getCurrentPoem();
+      int diffDay = currentPoem.diffDay;
       provider.open().then((tmp) {
-        provider.getPoem(diffDay).then((Poem poem) {
+        provider.queryFavor(diffDay).then((Poem poem) {
           if (poem == null)
-            provider.insert(state.dataHolder.poem).then((Poem poem) {
+            provider.insert(currentPoem).then((Poem poem) {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text("已收藏"),
                 duration: Duration(seconds: 2),
@@ -133,28 +128,28 @@ class RightDrawer extends StatelessWidget {
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_pre);
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder data) {
-        state.setMyState(data);
+        appState.setPoemPlaceState(data);
       });
     };
     Function nextFunc = () {
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_nxt);
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder data) {
-        state.setMyState(data);
+        appState.setPoemPlaceState(data);
       });
     };
     Function randFunc = () {
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_rand);
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder data) {
-        state.setMyState(data);
+        appState.setPoemPlaceState(data);
       });
     };
     Function todayFunc = () {
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_today);
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder data) {
-        state.setMyState(data);
+        appState.setPoemPlaceState(data);
       });
     };
     List<Function> funcs = [favorFunc, shareFunc, preFunc, nextFunc, randFunc, todayFunc];
@@ -168,7 +163,7 @@ class RightDrawer extends StatelessWidget {
     }
     return Container(
       width: width,
-      color: Colors.grey[900],
+      color: MyAppState.bgcNightMode,
       padding: EdgeInsets.fromLTRB(0, 50, 0, 50),
       child: Column(children: tiles),
     );
@@ -185,21 +180,18 @@ class RightDrawerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: Container(
         width: 400,
         padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
         child: InkWell(
-          child: Column(
-            children: <Widget>[
-              Icon(iconData, color: Colors.white),
-              DrawerText(text: text),
-            ],
-          ),
           onTap: onPressFunc,
           splashColor: Colors.grey,
+          child: Column(
+            children: <Widget>[Icon(iconData, color: Colors.white), DrawerText(text: text)],
+          ),
         ),
       ),
-      color: Colors.transparent,
     );
   }
 }
@@ -213,8 +205,8 @@ class DrawerText extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        fontSize: 16,
-        color: Colors.white,
+        fontSize: MyAppState.fsCommonText,
+        color: MyAppState.cTextNightMode,
       ),
     );
   }
