@@ -22,27 +22,40 @@ class FavorListState extends State<FavorListPage> {
   @override
   Widget build(BuildContext context) {
     Widget bodyWidget;
+    Color textColor = MyAppState.settingItem.cText;
     if (poems == null)
-      bodyWidget = Center(child: Text("出错了"));
+      bodyWidget = Center(
+        child: Text(
+          "出错了",
+          style: TextStyle(color: textColor),
+        ),
+      );
     else {
       List<ListTile> favorListTiles = [];
       for (var item in poems) {
         favorListTiles.add(ListTile(
-          contentPadding: EdgeInsets.all(3),
+          contentPadding: EdgeInsets.fromLTRB(10, 5, 10, 5),
           title: Text(
             item.title,
-            style: TextStyle(fontSize: MyAppState.fsPoemTitle),
+            style: TextStyle(fontSize: MyAppState.settingItem.fSPoemTitle, color: textColor),
           ),
           subtitle: Text(
             "${item.author} ${item.authorDynasty}",
-            style: TextStyle(fontSize: MyAppState.fsPoemAuthor, fontStyle: FontStyle.italic),
+            style: TextStyle(
+              fontSize: MyAppState.settingItem.fSPoemAuthor,
+              fontStyle: FontStyle.italic,
+              color: textColor,
+            ),
           ),
-          leading: Icon(Icons.cached),
+          leading: Icon(Icons.today, color: MyAppState.settingItem.cIcon),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (BuildContext context) => Scaffold(body: PoemPlaceStateless(item)),
+                builder: (BuildContext context) => Scaffold(
+                      body: PoemPlaceStateless(item),
+                      backgroundColor: MyAppState.settingItem.bgcCommon,
+                    ),
               ),
             );
           },
@@ -54,11 +67,12 @@ class FavorListState extends State<FavorListPage> {
       appBar: AppBar(
         title: Text("我的收藏"),
         toolbarOpacity: 1,
-        backgroundColor: MyAppState.bgcAppBar,
+        backgroundColor: MyAppState.settingItem.bgcAppBar,
         elevation: 3,
         titleSpacing: 0,
       ),
       body: bodyWidget,
+      backgroundColor: MyAppState.settingItem.bgcCommon,
     );
   }
 }

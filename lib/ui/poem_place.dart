@@ -19,7 +19,6 @@ class DataHolderStateful extends StatefulWidget {
 class DataHolderState extends State<DataHolderStateful> {
   /// Contain data from the Internet
   NetworkDataHolder dataHolder;
-
   @override
   void initState() {
     super.initState();
@@ -31,22 +30,27 @@ class DataHolderState extends State<DataHolderStateful> {
   }
 
   /// Set state of this state
-  void setMyState(NetworkDataHolder data) {
-    setState(() => dataHolder = data);
+  void setMyState({NetworkDataHolder data}) {
+    if (data == null)
+      setState(() {});
+    else
+      setState(() => dataHolder = data);
   }
 
   @override
   Widget build(BuildContext context) {
     Widget child;
+    TextStyle style =
+        TextStyle(color: MyAppState.settingItem.cText, fontSize: MyAppState.settingItem.fSCommon);
     if (dataHolder == null)
       child = Center(child: CircularProgressIndicator());
     else if (dataHolder.errorOccurred)
-      child = Center(child: Text(dataHolder.errorInfo.toString()));
+      child = Center(child: Text(dataHolder.errorInfo.toString(), style: style));
     else if (!dataHolder.dataFetched)
-      child = Center(child: Text("No data found"));
+      child = Center(child: Text("No data found", style: style));
     else
       child = PoemPlaceStateless(dataHolder.poem);
-    return Container(color: MyAppState.bgcCommon, child: child);
+    return Container(color: MyAppState.settingItem.bgcCommon, child: child);
   }
 }
 
@@ -59,18 +63,18 @@ class PoemPlaceStateless extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle titleStyle = TextStyle(
-      fontSize: MyAppState.fsPoemTitle,
+      fontSize: MyAppState.settingItem.fSPoemTitle,
       fontWeight: FontWeight.bold,
-      color: MyAppState.cText,
+      color: MyAppState.settingItem.cText,
     );
     TextStyle authorStyle = TextStyle(
-      fontSize: MyAppState.fsPoemAuthor,
+      fontSize: MyAppState.settingItem.fSPoemAuthor,
       fontStyle: FontStyle.italic,
-      color: MyAppState.cText,
+      color: MyAppState.settingItem.cText,
     );
     TextStyle linesStyle = TextStyle(
-      fontSize: MyAppState.fsPoemLines,
-      color: MyAppState.cText,
+      fontSize: MyAppState.settingItem.fSPoemLines,
+      color: MyAppState.settingItem.cText,
     );
 
     Widget titleWidget = Text(poem.title, style: titleStyle);
@@ -78,19 +82,22 @@ class PoemPlaceStateless extends StatelessWidget {
     List<Text> poemWidgets = [titleWidget, authorWidget];
     for (var item in poem.lines) poemWidgets.add(Text(item, style: linesStyle));
 
-    return SingleChildScrollView(
-      child: Card(
-        elevation: 5,
-        margin: EdgeInsets.fromLTRB(10, 40, 10, 20),
-        child: Container(
-          width: 400,
-          padding: EdgeInsets.fromLTRB(20, 30, 20, 20),
-          color: MyAppState.bgcPoemPlace,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: poemWidgets,
+    return Container(
+      color: MyAppState.settingItem.bgcCommon,
+      child: SingleChildScrollView(
+        child: Card(
+          elevation: 5,
+          margin: EdgeInsets.fromLTRB(10, 40, 10, 20),
+          child: Container(
+            width: 400,
+            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+            color: MyAppState.settingItem.bgcPoemPlace,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: poemWidgets,
+              ),
             ),
           ),
         ),

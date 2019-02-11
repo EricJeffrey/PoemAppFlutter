@@ -1,17 +1,9 @@
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:poem_random/data_control/data_model.dart';
 
 const String url = "http://192.168.137.1:8000";
-
-/// A log tools with style
-/// desc: <<<xxxx>>>
-void mylog(Object content, {String desc}) {
-  if (desc != null) debugPrint("$desc: ");
-  debugPrint("<<<<<<<<<<<<<<<<${content.toString()}>>>>>>>>>>>>>>>>\n");
-}
 
 /// Parse a bytes into utf-8 string, then to json, then to Poem
 Poem parseJsonBytesData(Uint8List data) {

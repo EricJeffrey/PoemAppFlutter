@@ -1,4 +1,4 @@
-import 'package:poem_random/data_control/providers.dart';
+import 'package:poem_random/data_control/favor_poem_provider.dart';
 
 /// Structure of a Poem, with property:
 /// {title, author, authorDynasty, lines}

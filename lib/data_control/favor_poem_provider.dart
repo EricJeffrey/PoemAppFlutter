@@ -1,7 +1,6 @@
 import 'package:path/path.dart';
 import 'package:poem_random/data_control/data_model.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const String dbName = "poem_random.db";
 
@@ -80,50 +79,5 @@ class FavorPoemProvider {
   /// Delete one record in database
   Future<int> delete(int diffDay) async {
     return await db.delete(tableFavor, where: '$col_diffDay = ?', whereArgs: [diffDay]);
-  }
-}
-
-class SettingItem {
-  static const int fs_small = -1, fs_middle = 0, fs_big = 1;
-  static const int bgc_light_blue = 1, bgc_light_cyan = 2, bgc_amber = 3, bgc_white_smoke = 4;
-  static const String font_size_str = "font_size",
-      bg_color_str = "bg_color",
-      night_mode_str = "night_mode";
-  int fontSize;
-  int poemPlaceBgColor;
-  bool nightModeOn;
-
-  SettingItem(this.fontSize, this.poemPlaceBgColor, this.nightModeOn);
-}
-
-class SettingItemProvider {
-  static SettingItemProvider provider;
-
-  static SettingItemProvider getInstance() {
-    if (provider == null) provider = SettingItemProvider();
-    return provider;
-  }
-
-  Future saveSettings(SettingItem settingItem) async {
-    SharedPreferences preference = await SharedPreferences.getInstance();
-    preference.setInt(SettingItem.font_size_str, settingItem.fontSize);
-    preference.setInt(SettingItem.bg_color_str, settingItem.poemPlaceBgColor);
-    preference.setBool(SettingItem.night_mode_str, settingItem.nightModeOn);
-  }
-
-  Future<bool> isSettingStored() async {
-    SharedPreferences preference = await SharedPreferences.getInstance();
-    if (preference.getKeys().length <= 0) return false;
-    return true;
-  }
-
-  /// Get setting stored in SharedPreference,
-  /// use [isSettingStored] to check whether setting is avaliable or not
-  Future<SettingItem> readSettings() async {
-    SharedPreferences preference = await SharedPreferences.getInstance();
-    int fs = preference.getInt(SettingItem.font_size_str);
-    int bgc = preference.getInt(SettingItem.bg_color_str);
-    bool nm = preference.getBool(SettingItem.night_mode_str);
-    return SettingItem(fs, bgc, nm);
   }
 }
