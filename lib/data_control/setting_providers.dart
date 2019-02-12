@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:poem_random/data_control/my_log.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum FontSizeType { common, title, subTitle, poemTitle, poemAuthor, poemLines }

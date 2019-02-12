@@ -6,17 +6,19 @@ import 'package:poem_random/data_control/setting_providers.dart';
 import 'package:poem_random/ui/favor_list.dart';
 import 'package:poem_random/ui/my_app.dart';
 import 'package:poem_random/ui/setting_btm_sheet.dart';
+import 'package:share/share.dart';
 
-/// TODO right drawer - stateful
+const String _githubUrl = "https://github.com/EricJeffrey/PoemAppFlutter";
 
 class LeftDrawer extends StatelessWidget {
   final MyAppState appState;
 
   const LeftDrawer(this.appState, {Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    List<String> titles = ["我的收藏", "阅读设置", "给个好评"];
-    List<IconData> icons = [Icons.bookmark, Icons.settings, Icons.thumb_up];
+    List<String> titles = ["我的收藏", "阅读设置", "关于作者"];
+    List<IconData> icons = [Icons.bookmark, Icons.settings, Icons.help];
     Function myFavorTapFunc = () {
       FavorPoemProvider favorProvider = FavorPoemProvider.getInstance();
       favorProvider.open().then((tmp) {
@@ -38,10 +40,14 @@ class LeftDrawer extends StatelessWidget {
         builder: (BuildContext context) => SettingBtmSheet(appState),
       );
     };
-
-    /// TODO thumbUp page
     Function thumbUpTapFunc = () {
       Navigator.pop(context);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Developed by EricJeffrey with Flutter~"),
+        duration: Duration(milliseconds: 1500),
+      ));
+
+      /// TODO show about or thumb up
     };
     List<Function> funcs = [myFavorTapFunc, settingTapFunc, thumbUpTapFunc];
     List<LeftDrawerTile> tiles = [];
@@ -78,51 +84,73 @@ class LeftDrawerTile extends StatelessWidget {
   }
 }
 
+/// Refactor to Stateful
 class RightDrawer extends StatelessWidget {
   final MyAppState appState;
 
   RightDrawer(this.appState, {Key key}) : super(key: key);
 
+  void checkPoemStored(int diffDay, Function(Poem, FavorPoemProvider) callback) {
+    FavorPoemProvider poemProvider = FavorPoemProvider.getInstance();
+    poemProvider.open().then((tmp) {
+      poemProvider.queryFavor(diffDay).then((Poem poem) => callback(poem, poemProvider));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<String> texts = ["收藏", "分享", "前一天", "后一天", "随机", "今日"];
+    List<String> texts = ["分享", "前一天", "后一天", "随机", "今日"];
     List<IconData> icons = [
-      Icons.favorite,
       Icons.share,
       Icons.fast_rewind,
       Icons.fast_forward,
       Icons.all_inclusive,
-      Icons.access_time,
+      Icons.access_time
     ];
+
+    /// Favor function
+    _FavorTileState favorState;
     Function favorFunc = () {
-      FavorPoemProvider provider = FavorPoemProvider.getInstance();
       Navigator.pop(context);
       Poem currentPoem = appState.getCurrentPoem();
-      int diffDay = currentPoem.diffDay;
-      provider.open().then((tmp) {
-        provider.queryFavor(diffDay).then((Poem poem) {
-          if (poem == null)
+      int diffDay = appState.getCurrentPoem().diffDay;
+      // check whether this poem has stored
+      checkPoemStored(
+        diffDay,
+        (Poem poem, FavorPoemProvider provider) {
+          if (poem == null) {
             provider.insert(currentPoem).then((Poem poem) {
               Scaffold.of(context).showSnackBar(SnackBar(
                 content: Text("已收藏"),
                 duration: Duration(seconds: 2),
               ));
+              favorState.update(true);
             });
-          else
+          } else {
             provider.delete(diffDay).then((v) {
               if (v != null)
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text("已取消收藏"),
                   duration: Duration(seconds: 2),
                 ));
+              favorState.update(false);
             });
-        });
-      });
+          }
+        },
+      );
     };
+    favorState = _FavorTileState(favorFunc, false);
+
+    /// Check whether poem has favored
+    checkPoemStored(appState.getCurrentPoem().diffDay, (Poem poem, FavorPoemProvider provider) {
+      if (poem == null)
+        favorState.update(false);
+      else
+        favorState.update(true);
+    });
     Function shareFunc = () {
-      /// TODO share
       Navigator.pop(context);
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text("正在开发中")));
+      Share.share(_githubUrl);
     };
     Function preFunc = () {
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_pre);
@@ -152,9 +180,9 @@ class RightDrawer extends StatelessWidget {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
-    List<Function> funcs = [favorFunc, shareFunc, preFunc, nextFunc, randFunc, todayFunc];
-    List<RightDrawerTile> tiles = [];
-    for (var i = 0; i < 6; i++) {
+    List<Function> funcs = [shareFunc, preFunc, nextFunc, randFunc, todayFunc];
+    List<Widget> tiles = [FavorTile(drawerState: favorState)];
+    for (var i = 0; i < funcs.length; i++) {
       tiles.add(RightDrawerTile(
         text: texts[i],
         iconData: icons[i],
@@ -166,6 +194,54 @@ class RightDrawer extends StatelessWidget {
       color: MyAppState.settingItem.bgcDrawer,
       padding: EdgeInsets.fromLTRB(0, SettingItem.drawerContentTopPad, 0, 0),
       child: Column(children: tiles),
+    );
+  }
+}
+
+/// Favor widget
+class FavorTile extends StatefulWidget {
+  final _FavorTileState drawerState;
+  const FavorTile({Key key, this.drawerState}) : super(key: key);
+  @override
+  State<StatefulWidget> createState() {
+    return drawerState;
+  }
+}
+
+class _FavorTileState extends State<StatefulWidget> {
+  final Function onPressFunc;
+  bool poemStored;
+
+  _FavorTileState(this.onPressFunc, this.poemStored);
+
+  void update(bool ps) {
+    setState(() => poemStored = ps);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = Colors.white;
+    String text = "收藏";
+    if (poemStored) {
+      color = Colors.redAccent;
+      text = "已收藏";
+    }
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: 400,
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: InkWell(
+          onTap: onPressFunc,
+          splashColor: Colors.grey,
+          child: Column(
+            children: <Widget>[
+              Icon(Icons.favorite, color: color),
+              DrawerText(text: text),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

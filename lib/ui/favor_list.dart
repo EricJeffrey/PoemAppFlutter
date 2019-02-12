@@ -47,7 +47,7 @@ class FavorListState extends State<FavorListPage> {
               color: textColor,
             ),
           ),
-          leading: Icon(Icons.today, color: MyAppState.settingItem.cIcon),
+          leading: Icon(Icons.format_align_left, color: MyAppState.settingItem.cIcon),
           onTap: () {
             Navigator.push(
               context,
