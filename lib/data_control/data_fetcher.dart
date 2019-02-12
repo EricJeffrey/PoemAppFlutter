@@ -22,8 +22,14 @@ Future<NetworkDataHolder> fetchDataOfType(FetchType fetchType, {int day}) async 
     /// TODO change fetchUrl
     switch (fetchType) {
       case FetchType.type_today:
+        fetchUrl = url;
+        break;
       case FetchType.type_pre:
+        fetchUrl = url + "/last";
+        break;
       case FetchType.type_nxt:
+        fetchUrl = url;
+        break;
       case FetchType.type_rand:
         fetchUrl = url;
         break;

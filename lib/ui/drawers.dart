@@ -84,11 +84,28 @@ class LeftDrawerTile extends StatelessWidget {
   }
 }
 
-/// Refactor to Stateful
-class RightDrawer extends StatelessWidget {
+class RightDrawer extends StatefulWidget {
   final MyAppState appState;
 
   RightDrawer(this.appState, {Key key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _RightDrawerState(appState);
+  }
+}
+
+class _RightDrawerState extends State<RightDrawer> {
+  static DateTime cmpDate = DateTime(2019);
+  final MyAppState appState;
+
+  _RightDrawerState(this.appState);
+
+  int curDiffDay() {
+    int res = DateTime.now().difference(cmpDate).inDays;
+    res = 5;
+    return res;
+  }
 
   void checkPoemStored(int diffDay, Function(Poem, FavorPoemProvider) callback) {
     FavorPoemProvider poemProvider = FavorPoemProvider.getInstance();
@@ -99,15 +116,6 @@ class RightDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> texts = ["分享", "前一天", "后一天", "随机", "今日"];
-    List<IconData> icons = [
-      Icons.share,
-      Icons.fast_rewind,
-      Icons.fast_forward,
-      Icons.all_inclusive,
-      Icons.access_time
-    ];
-
     /// Favor function
     _FavorTileState favorState;
     Function favorFunc = () {
@@ -180,14 +188,24 @@ class RightDrawer extends StatelessWidget {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
-    List<Function> funcs = [shareFunc, preFunc, nextFunc, randFunc, todayFunc];
+
+    List<Function> funcs = [shareFunc, preFunc, randFunc];
+    List<String> texts = ["分享", "前一天", "随机"];
+    List<IconData> icons = [Icons.share, Icons.fast_rewind, Icons.all_inclusive];
+
+    int curDay = curDiffDay(), poemDay = appState.getCurrentPoem().diffDay;
+    if (poemDay != curDay) {
+      funcs.insert(2, nextFunc);
+      funcs.add(todayFunc);
+      texts.insert(2, "后一天");
+      texts.add("今日");
+      icons.insert(2, Icons.fast_forward);
+      icons.add(Icons.access_time);
+    }
+
     List<Widget> tiles = [FavorTile(drawerState: favorState)];
     for (var i = 0; i < funcs.length; i++) {
-      tiles.add(RightDrawerTile(
-        text: texts[i],
-        iconData: icons[i],
-        onPressFunc: funcs[i],
-      ));
+      tiles.add(RightDrawerTile(texts[i], icons[i], funcs[i]));
     }
     return Container(
       width: MyAppState.settingItem.rightDrawerWidth,
@@ -201,7 +219,9 @@ class RightDrawer extends StatelessWidget {
 /// Favor widget
 class FavorTile extends StatefulWidget {
   final _FavorTileState drawerState;
+
   const FavorTile({Key key, this.drawerState}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return drawerState;
@@ -226,23 +246,7 @@ class _FavorTileState extends State<StatefulWidget> {
       color = Colors.redAccent;
       text = "已收藏";
     }
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-        child: InkWell(
-          onTap: onPressFunc,
-          splashColor: Colors.grey,
-          child: Column(
-            children: <Widget>[
-              Icon(Icons.favorite, color: color),
-              DrawerText(text: text),
-            ],
-          ),
-        ),
-      ),
-    );
+    return RightDrawerTile(text, Icons.favorite, onPressFunc, iconColor: color);
   }
 }
 
@@ -250,8 +254,11 @@ class RightDrawerTile extends StatelessWidget {
   final String text;
   final IconData iconData;
   final Function onPressFunc;
+  final Color iconColor;
 
-  const RightDrawerTile({Key key, this.text, this.iconData, this.onPressFunc}) : super(key: key);
+  const RightDrawerTile(this.text, this.iconData, this.onPressFunc,
+      {Key key, this.iconColor: Colors.white})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +271,7 @@ class RightDrawerTile extends StatelessWidget {
           onTap: onPressFunc,
           splashColor: Colors.grey,
           child: Column(
-            children: <Widget>[Icon(iconData, color: Colors.white), DrawerText(text: text)],
+            children: <Widget>[Icon(iconData, color: iconColor), DrawerText(text: text)],
           ),
         ),
       ),
