@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -9,7 +10,6 @@ const String URL_TODAY = HOST + "today";
 const String URL_RAND = HOST + "poemrandom";
 const String URL_PRE = HOST + "poemofday";
 const String URL_NEXT = HOST + "poemofday";
-
 
 /// Parse a bytes into utf-8 string, then to json, then to Poem
 Poem parseJsonBytesData(Uint8List data) {
@@ -26,6 +26,7 @@ enum FetchType { type_today, type_rand, type_pre, type_nxt }
 /// Para [day] is needed when [fetchType] is [FetchType.type_nxt] or [FetchType.type_pre]
 Future<NetworkDataHolder> fetchDataOfType(FetchType fetchType, {int day}) async {
   try {
+    // sleep(Duration(milliseconds: 200));
     String fetchUrl;
 
     switch (fetchType) {

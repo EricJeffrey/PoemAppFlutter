@@ -53,7 +53,17 @@ class FavorListState extends State<FavorListPage> {
               context,
               MaterialPageRoute(
                 builder: (BuildContext context) => Scaffold(
-                      body: PoemPlaceStateless(item),
+                      appBar: AppBar(
+                        elevation: 0,
+                        backgroundColor: MyAppState.settingItem.bgcCommon,
+                        leading: IconButton(
+                          icon: Icon(Icons.arrow_back, color: MyAppState.settingItem.cText),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                      body: PoemPlaceStateless(item, topMarginLarge: true),
                       backgroundColor: MyAppState.settingItem.bgcCommon,
                     ),
               ),

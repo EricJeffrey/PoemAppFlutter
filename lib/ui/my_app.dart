@@ -70,6 +70,20 @@ class MyAppState extends State<MyApp> {
     MaterialApp app = MaterialApp(
       theme: ThemeData(primaryColor: Colors.blueAccent),
       home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: MyAppState.settingItem.bgcCommon,
+          elevation: 0,
+          titleSpacing: 0,
+          iconTheme: IconThemeData(color: MyAppState.settingItem.cText),
+          actions: <Widget>[
+            Builder(
+              builder: (BuildContext context) => IconButton(
+                    icon: Icon(Icons.more_horiz, color: MyAppState.settingItem.cText),
+                    onPressed: () => Scaffold.of(context).openEndDrawer(),
+                  ),
+            ),
+          ],
+        ),
         body: dataHolderWidget,
         drawer: LeftDrawer(this),
         endDrawer: RightDrawer(this),

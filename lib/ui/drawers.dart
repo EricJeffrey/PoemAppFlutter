@@ -44,7 +44,7 @@ class LeftDrawer extends StatelessWidget {
       Navigator.pop(context);
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text("Developed by EricJeffrey with Flutter~"),
-        duration: Duration(milliseconds: 1500),
+        duration: Duration(milliseconds: 2000),
       ));
 
       /// TODO show about or thumb up
@@ -160,35 +160,35 @@ class _RightDrawerState extends State<RightDrawer> {
       Share.share(_githubUrl);
     };
     Function preFunc = () {
+      Navigator.pop(context);
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(
         FetchType.type_pre,
         day: appState.getCurrentPoem().diffDay - 1,
       );
-      Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
     Function nextFunc = () {
+      Navigator.pop(context);
       Future<NetworkDataHolder> tmpFuture = fetchDataOfType(
         FetchType.type_nxt,
         day: appState.getCurrentPoem().diffDay + 1,
       );
-      Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
     Function randFunc = () {
-      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_rand);
       Navigator.pop(context);
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_rand);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
     Function todayFunc = () {
-      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_today);
       Navigator.pop(context);
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_today);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });

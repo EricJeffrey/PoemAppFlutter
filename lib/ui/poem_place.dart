@@ -59,8 +59,9 @@ class DataHolderState extends State<DataHolderStateful> {
 /// Place to show the poem fetched
 class PoemPlaceStateless extends StatelessWidget {
   final Poem poem;
+  final bool topMarginLarge;
 
-  PoemPlaceStateless(this.poem, {Key key}) : super(key: key);
+  PoemPlaceStateless(this.poem, {Key key, this.topMarginLarge: false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +82,7 @@ class PoemPlaceStateless extends StatelessWidget {
     );
 
     Widget titleWidget = Text(poem.title, style: titleStyle);
-    Widget authorWidget = Text("${poem.author} ${poem.authorDynasty}", style: authorStyle);
+    Widget authorWidget = Text("${poem.authorDynasty} ${poem.author}", style: authorStyle);
     List<Text> poemWidgets = [titleWidget, authorWidget];
     for (var item in poem.lines) poemWidgets.add(Text(item, style: linesStyle));
 
@@ -89,12 +90,16 @@ class PoemPlaceStateless extends StatelessWidget {
       color: MyAppState.settingItem.bgcCommon,
       child: SingleChildScrollView(
         child: Card(
-          elevation: 5,
-          margin: EdgeInsets.fromLTRB(10, 40, 10, 20),
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+          margin: EdgeInsets.fromLTRB(10, 5, 10, 20),
           child: Container(
             width: 400,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: MyAppState.settingItem.bgcPoemPlace,
+            ),
             padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-            color: MyAppState.settingItem.bgcPoemPlace,
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
