@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:poem_random/data_control/data_model.dart';
+import 'package:poem_random/data_control/my_log.dart';
 import 'package:poem_random/data_control/setting_providers.dart';
 import 'package:poem_random/ui/drawers.dart';
 import 'package:poem_random/ui/poem_place.dart';
@@ -31,9 +32,10 @@ class MyAppState extends State<MyApp> {
           setState(() {});
         });
       } else {
-        provider.saveSettings(settingItem);
-        _settingPrepared = true;
-        setState(() {});
+        provider.saveSettings(settingItem).then((v) {
+          _settingPrepared = true;
+          setState(() {});
+        });
       }
     });
     dataHolderWidget = DataHolderStateful();
@@ -42,10 +44,12 @@ class MyAppState extends State<MyApp> {
   }
 
   void updateSetting({int fSCode, int pPBgCCode, bool nmo}) {
+    settingItem.update(fSCode: fSCode, pPBgCCode: pPBgCCode, nmo: nmo);
     SettingItemProvider.getInstance().saveSettings(settingItem).then((v) {
-      settingItem.update(fSCode: fSCode, pPBgCCode: pPBgCCode, nmo: nmo);
       setState(() {});
       dataHolderWidget.state.setMyState();
+    }, onError: (StackTrace trace) {
+      mylog(trace);
     });
   }
 

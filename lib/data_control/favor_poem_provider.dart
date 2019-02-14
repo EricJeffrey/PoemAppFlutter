@@ -7,10 +7,10 @@ const String dbName = "poem_random.db";
 class FavorPoemProvider {
   /// Specific column name
   static const String col_diffDay = "diffDay", col_title = "title", col_author = "author";
-  static const String col_authorDynasty = "authorDynasty", col_lines = "lines";
+  static const String col_authorDynasty = "authorDynasty", col_lines = "paragraphs";
   static const String tableFavor = "favor";
   static const String SQL_CREATE_TABLE = "CREATE TABLE $tableFavor "
-      "(diffDay INTEGER PRIMARY KEY, title TEXT, author TEXT, authorDynasty TEXT, lines TEXT)";
+      "($col_diffDay INTEGER PRIMARY KEY, $col_title TEXT, $col_author TEXT, $col_authorDynasty TEXT, $col_lines TEXT)";
 
   Database db;
 

@@ -23,7 +23,9 @@ class DataHolderState extends State<DataHolderStateful> {
   void initState() {
     super.initState();
     Future<NetworkDataHolder> tmpNetwordData = fetchDataOfType(FetchType.type_today);
-    tmpNetwordData.timeout(Duration(seconds: 3), onTimeout: () {});
+    tmpNetwordData.timeout(Duration(seconds: 3), onTimeout: () {
+      setState(() => NetworkDataHolder(errorOccurred: true, errorInfo: "Time Out"));
+    });
     tmpNetwordData.then((NetworkDataHolder data) {
       setState(() => dataHolder = data);
     });
@@ -75,6 +77,7 @@ class PoemPlaceStateless extends StatelessWidget {
     TextStyle linesStyle = TextStyle(
       fontSize: MyAppState.settingItem.fSPoemLines,
       color: MyAppState.settingItem.cText,
+      height: 1.3,
     );
 
     Widget titleWidget = Text(poem.title, style: titleStyle);

@@ -2,12 +2,21 @@ import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:poem_random/data_control/data_model.dart';
+import 'package:poem_random/data_control/favor_poem_provider.dart';
 
-const String url = "http://192.168.137.1:8000";
+const String HOST = "http://123.206.16.70:8080/";
+const String URL_TODAY = HOST + "today";
+const String URL_RAND = HOST + "poemrandom";
+const String URL_PRE = HOST + "poemofday";
+const String URL_NEXT = HOST + "poemofday";
+
 
 /// Parse a bytes into utf-8 string, then to json, then to Poem
 Poem parseJsonBytesData(Uint8List data) {
-  return Poem.fromJsonMap(jsonDecode(Utf8Decoder().convert(data)));
+  String res = Utf8Decoder().convert(data);
+  Map<String, dynamic> resMap = jsonDecode(res);
+  resMap[FavorPoemProvider.col_lines] = jsonDecode(resMap[FavorPoemProvider.col_lines]);
+  return Poem.fromJsonMap(resMap);
 }
 
 /// 4 way of fetch data
@@ -19,19 +28,18 @@ Future<NetworkDataHolder> fetchDataOfType(FetchType fetchType, {int day}) async 
   try {
     String fetchUrl;
 
-    /// TODO change fetchUrl
     switch (fetchType) {
       case FetchType.type_today:
-        fetchUrl = url;
+        fetchUrl = URL_TODAY;
         break;
       case FetchType.type_pre:
-        fetchUrl = url + "/last";
+        fetchUrl = URL_PRE + "?diffDay=$day";
         break;
       case FetchType.type_nxt:
-        fetchUrl = url;
+        fetchUrl = URL_NEXT + "?diffDay=$day";
         break;
       case FetchType.type_rand:
-        fetchUrl = url;
+        fetchUrl = URL_RAND;
         break;
     }
     final Response response = await get(fetchUrl);

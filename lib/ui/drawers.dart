@@ -103,7 +103,6 @@ class _RightDrawerState extends State<RightDrawer> {
 
   int curDiffDay() {
     int res = DateTime.now().difference(cmpDate).inDays;
-    res = 5;
     return res;
   }
 
@@ -161,14 +160,20 @@ class _RightDrawerState extends State<RightDrawer> {
       Share.share(_githubUrl);
     };
     Function preFunc = () {
-      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_pre);
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(
+        FetchType.type_pre,
+        day: appState.getCurrentPoem().diffDay - 1,
+      );
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
       });
     };
     Function nextFunc = () {
-      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(FetchType.type_nxt);
+      Future<NetworkDataHolder> tmpFuture = fetchDataOfType(
+        FetchType.type_nxt,
+        day: appState.getCurrentPoem().diffDay + 1,
+      );
       Navigator.pop(context);
       tmpFuture.then((NetworkDataHolder dataHolder) {
         appState.setPoemPlaceState(dataHolder: dataHolder);
